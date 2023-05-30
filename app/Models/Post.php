@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
+use App\Models\Comment;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
@@ -19,19 +20,24 @@ class Post extends Model
     {
 
         $query->when($filters['search'] ?? false, fn($query, $search) =>
-            $query->where(fn ($query) => 
+            $query->where(fn ($query) =>
             $query->where('title', 'like', '%' . $search . '%')
             ->orWhere('excerpt', 'like', '%' . $search . '%'))
         );
 
         $query->when($filters['category'] ?? false, fn($query, $category) =>
-            $query->whereHas('category', fn ($query) => 
+            $query->whereHas('category', fn ($query) =>
                 $query->where('slug', $category))
         );
         $query->when($filters['author'] ?? false, fn($query, $author) =>
-            $query->whereHas('author', fn ($query) => 
+            $query->whereHas('author', fn ($query) =>
                 $query->where('username', $author))
         );
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 
     public function category()
